@@ -84,6 +84,27 @@ app.get("/getAllTeams", cors(), function (req, res) {
     });
 });
 
+
+app.get("/getAllColors", cors(), function (req, res) {
+
+    var sql = "SELECT * FROM color";
+
+    connection.query(sql, function (error, rows, fields) {
+        var response;
+        if (!!error) {
+            console.log("Error in the getColorquery");
+            throw error;
+
+        } else {
+            console.log("success getting all Colors");
+            response = JSON.stringify(rows);
+            res.send(JSON.parse(response));
+        }
+    });
+});
+
+
+
 app.get("/getAllGames", cors(), function (req, res) {
 
     var sql = "SELECT * FROM game";
@@ -110,10 +131,29 @@ app.get("/getTeamByID/:id", function (req, res) {
 
     connection.query(sql, function (error, row, fields) {
         if (!!error) {
-            console.log("error getting biggest");
+            console.log("error getting Team");
         }
         else {
             console.log("success getting Team by ID");
+            var response = JSON.stringify(row);
+            res.send(JSON.parse(response));
+        }
+    })
+
+});
+
+
+app.get("/getPlayerByID/:id", function (req, res) {
+    var playerID = req.params.id;
+
+    var sql = "SELECT * FROM player WHERE id= " + playerID;
+
+    connection.query(sql, function (error, row) {
+        if (!!error) {
+            console.log("error getting Player");
+        }
+        else {
+            console.log("success getting Player by ID");
             var response = JSON.stringify(row);
             res.send(JSON.parse(response));
         }
@@ -150,13 +190,13 @@ app.post("/createTeam", cors(), function (req, res) {
     var sql = "Insert into team (name, motto, memberone, membertwo) Values ('" + name + "' ,'" + motto + "' ,'" + memberone + "' ,'" + membertwo + "' );";
 
     connection.query(sql, function (err, rows, fields) {
-        var response;
+        
 
-        if (err) {
+        if (!!err) {
             throw err;
         } else {
 
-            response = JSON.stringify(rows);
+            
             console.log("new team created");
             res.send(body);
         }
@@ -168,25 +208,23 @@ app.post("/createPlayer", cors(), function (req, res) {
 
     var firstname = req.body.firstname;
     var lastname = req.body.lastname;
-    var wins = req.body.wins;
     var description = req.body.description;
     var color = req.body.color;
-    var picturesrc = req.body.picturesrc;
-    var birthday = req.body.wins;
+    var picturesrc = "../assets/Pictures/"+  firstname + "-" + lastname + ".jpg"
+    var birthday = req.body.birthday;
 
-    var body = { firstname: firstname, lastname: lastname, wins: wins, description: description, color: color, picturesrc: picturesrc, birthday: birthday }
+    var body = { firstname: firstname, lastname: lastname, description: description, color: color, picturesrc: picturesrc, birthday: birthday }
 
-    var sql = "Insert into team (firstname, lastname, wins, description, color, picturesrc, birthday) Values ('"
-        + firstname + "' ,'" + lastname + "' ,'" + wins + "' ,'" + description + color + "' ,'" + picturesrc + "' ,'" + birthday + "' );";
+    var sql = "Insert into player (firstname, lastname, description, color, picturesrc, birthday) Values ('"
+        + firstname + "' ,'" + lastname + "' ,'" + description + "' ,'" + color + "' ,'" + picturesrc + "' ,'" + birthday + "' );";
 
-    connection.query(sql, function (err, rows, fields) {
-        var response;
+    connection.query(sql, function (err, rows) {
+        
 
-        if (err) {
+        if (!!err) {
             throw err;
         } else {
-
-            response = JSON.stringify(rows);
+           
             console.log("new player created");
             res.send(body);
         }
@@ -201,7 +239,7 @@ app.post('/newGame', cors(), function (req, res) {
 
 
     var name = req.body.name;
-    var points = 100;/* req.body.points;*/
+    var points = 100;
     var winner = req.body.winner.id;
     var silver = req.body.second.id;
     var bronze = req.body.third.id;
@@ -250,6 +288,37 @@ app.post('/newGame', cors(), function (req, res) {
 
     res.end(this.gameRows + this.addRows);
 });
+
+
+app.post('/editPlayer/:id', cors(), function (req, res) {
+
+    var id = req.params.id;
+    var firstname = req.body.firstname;
+    var lastname = req.body.lastname;
+    var description = req.body.description;
+    var birthday = req.body.birthday;
+    var picturesrc = "../assets/Pictures/"+  firstname + "-" + lastname + ".jpg";
+    var color = req.body.color;
+
+
+    var sql = "UPDATE player SET firstname = '" 
+    + firstname + "', lastname = '" + lastname + "', description = '" + description + "', birthday = '" + birthday + "', picturesrc = '" + picturesrc + "', color = '" + color + "' WHERE id =" + id;
+
+    connection.query(sql, function (error, row) {
+        if (!!error) {
+            
+            console.log("Error in editing Player query");
+            throw error;
+        } else {
+            console.log("success editing Player");
+            res.send(row);
+        }
+    })
+
+});
+
+
+
 
 app.post('/editTeam/:id', cors(), function (req, res) {
     var id = req.params.id;
@@ -358,6 +427,24 @@ app.delete('/deleteTeamById/:id', function (req, res) {
 
         } else {
             console.log("success deleting Team");
+            res.send(rows);
+        }
+    })
+
+});
+
+
+app.delete('/deletePlayerById/:id', function (req, res) {
+
+    var sql = "DELETE From player WHERE id ='" + req.params.id + "'";
+
+    connection.query(sql, function (error, rows) {
+        if (!!error) {
+            console.log("Error in delete Player query");
+            throw error;
+
+        } else {
+            console.log("success deleting Player");
             res.send(rows);
         }
     })
