@@ -42,6 +42,7 @@ var connection = mysql.createConnection({
 connection.connect(function (error) {
     if (!!error) {
         console.log("Error");
+        throw error;
     } else {
         console.log("Database connected");
     }
@@ -66,21 +67,26 @@ app.get("/getAllPlayer", cors(), function (req, res) {
 });
 
 
-app.get("/getAllTeams", cors(), function (req, res) {
+app.get("/getAllTeams/:wettkampfid", cors(), function (req, res) {
 
-    var sql = "SELECT * FROM team";
+    var wettkampfid = req.params.wettkampfid;
 
-    connection.query(sql, function (error, rows, fields) {
+    console.log(wettkampfid);
+
+    var sql = "SELECT * FROM team WHERE wettkampfid=" + wettkampfid;
+
+    connection.query(sql, function (error, rows) {
         var response;
         if (!!error) {
             console.log("Error in the getTeamsquery");
             throw error;
 
         } else {
-            console.log("success getting all Teams");
-            response = JSON.stringify(rows);
-            res.send(JSON.parse(response));
-        }
+                console.log("success getting all Teams");
+                response = JSON.stringify(rows);
+                res.send(JSON.parse(response));
+            }
+        
     });
 });
 
@@ -103,13 +109,34 @@ app.get("/getAllColors", cors(), function (req, res) {
     });
 });
 
+app.get("/getTournaments", cors(), function (req, res) {
+
+    var sql = "SELECT * FROM wettkampf";
+
+    connection.query(sql, function (error, rows) {
+        var response;
+        if (!!error) {
+            console.log("Error in the getWettkampfquery");
+            throw error;
+
+        } else {
+            console.log("success getting all Wettkampf");
+            response = JSON.stringify(rows);
+            res.send(JSON.parse(response));
+        }
+    });
+
+});
 
 
-app.get("/getAllGames", cors(), function (req, res) {
 
-    var sql = "SELECT * FROM game";
+app.get("/getAllGames/:wettkampfid", cors(), function (req, res) {
 
-    connection.query(sql, function (error, rows, fields) {
+    var wettkampfid = req.params.wettkampfid;
+
+    var sql = "SELECT * FROM game WHERE wettkampfid =" + wettkampfid;
+
+    connection.query(sql, function (error, rows) {
         var response;
         if (!!error) {
             console.log("Error in the getGamesquery");
@@ -161,11 +188,13 @@ app.get("/getPlayerByID/:id", function (req, res) {
 
 });
 
-app.get("/getFirstPlace", cors(), function (req, res) {
+app.get("/getFirstPlace/:wettkampfid", cors(), function (req, res) {
 
-    var sql = "SELECT * FROM team WHERE points = (SELECT MAX(points)FROM team)";
+    var wettkampfid = req.params.wettkampfid;
 
-    connection.query(sql, function (error, row, fields) {
+    var sql = "SELECT * FROM team WHERE wettkampfid=" + wettkampfid +" AND points = (SELECT MAX(points)FROM team)";
+
+    connection.query(sql, function (error, row,) {
         if (!!error) {
             console.log("error getting biggest");
         }
@@ -178,25 +207,26 @@ app.get("/getFirstPlace", cors(), function (req, res) {
 });
 
 //creates new Team
-app.post("/createTeam", cors(), function (req, res) {
+app.post("/createTeam/:wettkampfid", cors(), function (req, res) {
+
+    console.log(req.params.wettkampfid);
 
     var name = req.body.name;
     var motto = req.body.motto;
-    var memberone = req.body.memberone;
-    var membertwo = req.body.membertwo;
+    var wettkampfid = req.params.wettkampfid
 
-    var body = { name: name, motto: motto, memberone: memberone, membertwo: membertwo }
+    var body = { name: name, motto: motto, wettkampfid: wettkampfid }
 
-    var sql = "Insert into team (name, motto, memberone, membertwo) Values ('" + name + "' ,'" + motto + "' ,'" + memberone + "' ,'" + membertwo + "' );";
+    var sql = "Insert into team (name, motto, wettkampfid) Values ('" + name + "' ,'" + motto + "' ,'" + wettkampfid + "' );";
 
-    connection.query(sql, function (err, rows, fields) {
-        
+    connection.query(sql, function (err, rows) {
+
 
         if (!!err) {
             throw err;
         } else {
 
-            
+
             console.log("new team created");
             res.send(body);
         }
@@ -210,7 +240,7 @@ app.post("/createPlayer", cors(), function (req, res) {
     var lastname = req.body.lastname;
     var description = req.body.description;
     var color = req.body.color;
-    var picturesrc = "../assets/Pictures/"+  firstname + "-" + lastname + ".jpg"
+    var picturesrc = "../assets/Pictures/" + firstname + "-" + lastname + ".jpg"
     var birthday = req.body.birthday;
 
     var body = { firstname: firstname, lastname: lastname, description: description, color: color, picturesrc: picturesrc, birthday: birthday }
@@ -219,12 +249,12 @@ app.post("/createPlayer", cors(), function (req, res) {
         + firstname + "' ,'" + lastname + "' ,'" + description + "' ,'" + color + "' ,'" + picturesrc + "' ,'" + birthday + "' );";
 
     connection.query(sql, function (err, rows) {
-        
+
 
         if (!!err) {
             throw err;
         } else {
-           
+
             console.log("new player created");
             res.send(body);
         }
@@ -232,10 +262,27 @@ app.post("/createPlayer", cors(), function (req, res) {
 });
 
 
+app.post('/addPlayerToTeam/:teamID/:playerID', cors(), function(req, res){
+
+    var playerID = req.params.playerID;
+    var teamID = req.params.teamID;
+
+    var sql="Insert into player_team (player_id, team_id) Values ('" + playerID + "','" + teamID + "');";
+
+    connection.query(sql, function (error, rows) {
+        if (!!error) {
+            console.log("error in adding a Player to team")
+            throw error;
+        } else {
+            console.log("Player addet");
+            res.send(rows);
+        }
+    });
+
+});
 
 
-
-app.post('/newGame', cors(), function (req, res) {
+app.post('/newGame/:wettkampfid', cors(), function (req, res) {
 
 
     var name = req.body.name;
@@ -245,11 +292,12 @@ app.post('/newGame', cors(), function (req, res) {
     var bronze = req.body.third.id;
     var iron = req.body.fourth.id;
     var loser = req.body.fifth.id;
+    var wettkampfid = req.params.wettkampfid;
 
-    var sql = "Insert into game (name, points, winnerid, silverid, bronzeid, ironid, loserid) Values ('" +
-        name + "' ,'" + points + "' ,'" + winner + "' ,'" + silver + "' ,'" + bronze + "' ,'" + iron + "' ,'" + loser + "' );";
+    var sql = "Insert into game (name, points, winnerid, silverid, bronzeid, ironid, loserid, wettkampfid ) Values ('" +
+        name + "' ,'" + points + "' ,'" + winner + "' ,'" + silver + "' ,'" + bronze + "' ,'"+ iron + "' ,'"  + loser + "' ,'" + wettkampfid + "' );";
 
-    connection.query(sql, function (error, rows, fields) {
+    connection.query(sql, function (error, rows) {
         if (!!error) {
             console.log("error in creating a new Game")
             throw error;
@@ -275,7 +323,7 @@ app.post('/newGame', cors(), function (req, res) {
     ];
 
     for (var i = 0; i < teamsqls.length; i++) {
-        connection.query(teamsqls[i], function (error, rows, fields) {
+        connection.query(teamsqls[i], function (error, rows) {
             if (!!error) {
                 console.log("error in adding points");
                 throw error;
@@ -289,6 +337,30 @@ app.post('/newGame', cors(), function (req, res) {
     res.end(this.gameRows + this.addRows);
 });
 
+app.post('/createTournament', cors(), function (req, res) {
+
+    var name = req.body.name;
+    var newDatum = new Date();
+    var datum = newDatum.toString();
+
+    var typ = req.body.typ;
+
+
+    var body = { name: name, datum: datum, typ: typ }
+
+    var sql = "Insert into wettkampf (name, datum, typ) Values ('"
+        + name + "' ,'" + datum + "' ,'" + typ + "' );";
+
+    connection.query(sql, function (err, rows) {
+        if (!!err) {
+            throw err;
+        } else {
+            console.log("new wettkampf created");
+            res.send(body);
+        }
+    });
+})
+
 
 app.post('/editPlayer/:id', cors(), function (req, res) {
 
@@ -297,16 +369,16 @@ app.post('/editPlayer/:id', cors(), function (req, res) {
     var lastname = req.body.lastname;
     var description = req.body.description;
     var birthday = req.body.birthday;
-    var picturesrc = "../assets/Pictures/"+  firstname + "-" + lastname + ".jpg";
+    var picturesrc = "../assets/Pictures/" + firstname + "-" + lastname + ".jpg";
     var color = req.body.color;
 
 
-    var sql = "UPDATE player SET firstname = '" 
-    + firstname + "', lastname = '" + lastname + "', description = '" + description + "', birthday = '" + birthday + "', picturesrc = '" + picturesrc + "', color = '" + color + "' WHERE id =" + id;
+    var sql = "UPDATE player SET firstname = '"
+        + firstname + "', lastname = '" + lastname + "', description = '" + description + "', birthday = '" + birthday + "', picturesrc = '" + picturesrc + "', color = '" + color + "' WHERE id =" + id;
 
     connection.query(sql, function (error, row) {
         if (!!error) {
-            
+
             console.log("Error in editing Player query");
             throw error;
         } else {
@@ -324,10 +396,8 @@ app.post('/editTeam/:id', cors(), function (req, res) {
     var id = req.params.id;
     var name = req.body.name;
     var motto = req.body.motto;
-    var memberone = req.body.memberone;
-    var membertwo = req.body.membertwo;
 
-    var sql = "UPDATE team SET name = '" + name + "', motto = '" + motto + "', memberone = '" + memberone + "', membertwo = '" + membertwo + "' WHERE id =" + id;
+    var sql = "UPDATE team SET name = '" + name + "', motto = '" + motto + "' WHERE id =" + id;
 
     connection.query(sql, function (error, row) {
         if (!!error) {
