@@ -188,6 +188,25 @@ app.get("/getPlayerByID/:id", function (req, res) {
 
 });
 
+
+app.get("/getTournamentByID/:wettkampfID", cors(), function(req, res){
+    var wettkampfID = req.params.wettkampfID;
+
+    var sql = "SELECT * from wettkampf Where id=" + wettkampfID;
+
+    connection.query(sql, function (error, row) {
+        if (!!error) {
+            console.log("error getting Wettkampf By ID");
+        }
+        else {
+            console.log("success getting Wettkampf by ID");
+            var response = JSON.stringify(row);
+            res.send(JSON.parse(response));
+        }
+    })
+
+})
+
 app.get("/getFirstPlace/:wettkampfid", cors(), function (req, res) {
 
     var wettkampfid = req.params.wettkampfid;
@@ -205,6 +224,27 @@ app.get("/getFirstPlace/:wettkampfid", cors(), function (req, res) {
         }
     });
 });
+
+
+app.get("/getPlayerOfTeam/:teamid", cors(), function (req,res){
+    var teamID = req.params.teamid;
+
+    var sql = "SELECT player.firstname, player.lastname From player INNER JOIN player_team ON player.id = player_team.player_id WHERE player_team.team_id =" + teamID;
+
+
+    connection.query(sql, function (error, row,) {
+        if (!!error) {
+            console.log("error getting biggest");
+        }
+        else {
+            console.log("success getting Player of specific Team");
+            var response = JSON.stringify(row);
+            res.send(JSON.parse(response));
+        }
+    });
+
+})
+
 
 //creates new Team
 app.post("/createTeam/:wettkampfid", cors(), function (req, res) {
