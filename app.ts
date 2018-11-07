@@ -13,7 +13,9 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
     // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    /*  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type'); */
+
+    res.setHeader("Access-Control-Allow-Headers", "Authentication, Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
 
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
@@ -51,6 +53,8 @@ connection.connect(function (error) {
 
 app.get("/getAllPlayer", cors(), function (req, res) {
 
+
+
     var sql = "SELECT * FROM player";
 
     connection.query(sql, function (error, rows, fields) {
@@ -61,6 +65,7 @@ app.get("/getAllPlayer", cors(), function (req, res) {
         } else {
             console.log("success getting all Player");
             response = JSON.stringify(rows);
+
             res.send(JSON.parse(response));
         }
     });
@@ -69,9 +74,9 @@ app.get("/getAllPlayer", cors(), function (req, res) {
 
 app.get("/getAllTeams/:wettkampfid", cors(), function (req, res) {
 
+
     var wettkampfid = req.params.wettkampfid;
 
-    console.log(wettkampfid);
 
     var sql = "SELECT * FROM team WHERE wettkampfid=" + wettkampfid;
 
@@ -82,11 +87,12 @@ app.get("/getAllTeams/:wettkampfid", cors(), function (req, res) {
             throw error;
 
         } else {
-                console.log("success getting all Teams");
-                response = JSON.stringify(rows);
-                res.send(JSON.parse(response));
-            }
-        
+            console.log("success getting all Teams");
+
+            response = JSON.stringify(rows);
+            res.send(JSON.parse(response));
+        }
+
     });
 });
 
@@ -189,7 +195,7 @@ app.get("/getPlayerByID/:id", function (req, res) {
 });
 
 
-app.get("/getTournamentByID/:wettkampfID", cors(), function(req, res){
+app.get("/getTournamentByID/:wettkampfID", cors(), function (req, res) {
     var wettkampfID = req.params.wettkampfID;
 
     var sql = "SELECT * from wettkampf Where id=" + wettkampfID;
@@ -211,9 +217,9 @@ app.get("/getFirstPlace/:wettkampfid", cors(), function (req, res) {
 
     var wettkampfid = req.params.wettkampfid;
 
-    var sql = "SELECT * FROM team WHERE wettkampfid=" + wettkampfid +" AND points = (SELECT MAX(points)FROM team)";
+    var sql = "SELECT * FROM team WHERE wettkampfid=" + wettkampfid + " AND points = (SELECT MAX(points)FROM team)";
 
-    connection.query(sql, function (error, row,) {
+    connection.query(sql, function (error, row, ) {
         if (!!error) {
             console.log("error getting biggest");
         }
@@ -226,13 +232,13 @@ app.get("/getFirstPlace/:wettkampfid", cors(), function (req, res) {
 });
 
 
-app.get("/getPlayerOfTeam/:teamid", cors(), function (req,res){
+app.get("/getPlayerOfTeam/:teamid", cors(), function (req, res) {
     var teamID = req.params.teamid;
 
     var sql = "SELECT player.firstname, player.lastname From player INNER JOIN player_team ON player.id = player_team.player_id WHERE player_team.team_id =" + teamID;
 
 
-    connection.query(sql, function (error, row,) {
+    connection.query(sql, function (error, row, ) {
         if (!!error) {
             console.log("error getting biggest");
         }
@@ -249,8 +255,6 @@ app.get("/getPlayerOfTeam/:teamid", cors(), function (req,res){
 //creates new Team
 app.post("/createTeam/:wettkampfid", cors(), function (req, res) {
 
-    console.log(req.params.wettkampfid);
-
     var name = req.body.name;
     var motto = req.body.motto;
     var wettkampfid = req.params.wettkampfid
@@ -266,7 +270,6 @@ app.post("/createTeam/:wettkampfid", cors(), function (req, res) {
             throw err;
         } else {
 
-
             console.log("new team created");
             res.send(body);
         }
@@ -276,38 +279,37 @@ app.post("/createTeam/:wettkampfid", cors(), function (req, res) {
 //creates new Player
 app.post("/createPlayer", cors(), function (req, res) {
 
-    var firstname = req.body.firstname;
-    var lastname = req.body.lastname;
+    var firstname = req.body.firstname.trim();
+    var lastname = req.body.lastname.trim();
     var description = req.body.description;
     var color = req.body.color;
     var picturesrc = "../assets/Pictures/" + firstname + "-" + lastname + ".jpg"
     var birthday = req.body.birthday;
 
-    var body = { firstname: firstname, lastname: lastname, description: description, color: color, picturesrc: picturesrc, birthday: birthday }
+    var body = { firstname: firstname, lastname: lastname, description: description, color: color, picturesrc: picturesrc, birthday: birthday, id: undefined }
 
     var sql = "Insert into player (firstname, lastname, description, color, picturesrc, birthday) Values ('"
         + firstname + "' ,'" + lastname + "' ,'" + description + "' ,'" + color + "' ,'" + picturesrc + "' ,'" + birthday + "' );";
 
-    connection.query(sql, function (err, rows) {
+    connection.query(sql, function (err, rows, fields) {
 
 
         if (!!err) {
             throw err;
         } else {
-
-            console.log("new player created");
+            body.id = rows.insertId;
             res.send(body);
         }
     });
 });
 
 
-app.post('/addPlayerToTeam/:teamID/:playerID', cors(), function(req, res){
+app.post('/addPlayerToTeam/:teamID/:playerID', cors(), function (req, res) {
 
     var playerID = req.params.playerID;
     var teamID = req.params.teamID;
 
-    var sql="Insert into player_team (player_id, team_id) Values ('" + playerID + "','" + teamID + "');";
+    var sql = "Insert into player_team (player_id, team_id) Values ('" + playerID + "','" + teamID + "');";
 
     connection.query(sql, function (error, rows) {
         if (!!error) {
@@ -324,56 +326,65 @@ app.post('/addPlayerToTeam/:teamID/:playerID', cors(), function(req, res){
 
 app.post('/newGame/:wettkampfid', cors(), function (req, res) {
 
+    if (req.get('Authentication') === 'admin') {
 
-    var name = req.body.name;
-    var points = 100;
-    var winner = req.body.winner.id;
-    var silver = req.body.second.id;
-    var bronze = req.body.third.id;
-    var iron = req.body.fourth.id;
-    var loser = req.body.fifth.id;
-    var wettkampfid = req.params.wettkampfid;
+        var name = req.body.name;
+        var points = 100;
+        var winner = req.body.winner.id;
+        var silver = req.body.second.id;
+        var bronze = req.body.third.id;
+        var iron = req.body.fourth.id;
+        var loser = req.body.fifth.id;
+        var wettkampfid = req.params.wettkampfid;
 
-    var sql = "Insert into game (name, points, winnerid, silverid, bronzeid, ironid, loserid, wettkampfid ) Values ('" +
-        name + "' ,'" + points + "' ,'" + winner + "' ,'" + silver + "' ,'" + bronze + "' ,'"+ iron + "' ,'"  + loser + "' ,'" + wettkampfid + "' );";
+        var sql = "Insert into game (name, points, winnerid, silverid, bronzeid, ironid, loserid, wettkampfid ) Values ('" +
+            name + "' ,'" + points + "' ,'" + winner + "' ,'" + silver + "' ,'" + bronze + "' ,'" + iron + "' ,'" + loser + "' ,'" + wettkampfid + "' );";
 
-    connection.query(sql, function (error, rows) {
-        if (!!error) {
-            console.log("error in creating a new Game")
-            throw error;
-        } else {
-            console.log("created game");
-            this.gameRows = rows;
-        }
-    });
-
-    var winnerpoints = points * 0.45;
-    var silverpoints = points * 0.25;
-    var bronzepoints = points * 0.15;
-    var ironpoints = points * 0.1;
-    var loserpoints = points * 0.05;
-
-    var teamsqls = new Array();
-    teamsqls = [
-        "UPDATE team SET points = points + " + winnerpoints + " WHERE id =" + winner,
-        "UPDATE team SET points = points + " + silverpoints + " WHERE id =" + silver,
-        "UPDATE team SET points = points + " + bronzepoints + " WHERE id =" + bronze,
-        "UPDATE team SET points = points + " + ironpoints + " WHERE id =" + iron,
-        "UPDATE team SET points = points + " + loserpoints + " WHERE id =" + loser
-    ];
-
-    for (var i = 0; i < teamsqls.length; i++) {
-        connection.query(teamsqls[i], function (error, rows) {
+        connection.query(sql, function (error, rows) {
             if (!!error) {
-                console.log("error in adding points");
+                console.log("error in creating a new Game")
                 throw error;
             } else {
-                console.log("addet points");
-                this.addrows = this.addrows + rows;
+                console.log("created game");
+                this.gameRows = rows;
             }
         });
+
+        var winnerpoints = points * 0.45;
+        var silverpoints = points * 0.25;
+        var bronzepoints = points * 0.15;
+        var ironpoints = points * 0.1;
+        var loserpoints = points * 0.05;
+
+        var teamsqls = new Array();
+        teamsqls = [
+            "UPDATE team SET points = points + " + winnerpoints + " WHERE id =" + winner,
+            "UPDATE team SET points = points + " + silverpoints + " WHERE id =" + silver,
+            "UPDATE team SET points = points + " + bronzepoints + " WHERE id =" + bronze,
+            "UPDATE team SET points = points + " + ironpoints + " WHERE id =" + iron,
+            "UPDATE team SET points = points + " + loserpoints + " WHERE id =" + loser
+        ];
+
+        for (var i = 0; i < teamsqls.length; i++) {
+            connection.query(teamsqls[i], function (error, rows) {
+                if (!!error) {
+                    console.log("error in adding points");
+                    throw error;
+                } else {
+                    console.log("addet points");
+                    this.addrows = this.addrows + rows;
+                }
+            });
+        }
+
+    } else {
+        console.log("this funktion is not allowed for " + req.get('Authentication'));
+        
+        res.status(400).send("this function is not allowed for user: '" +req.get('Authentication')+ "'");
     }
 
+
+    //hier wird kein Rückgabewert benötigt, da direkt auf die Tabelle weitergeleitet wird
     res.end(this.gameRows + this.addRows);
 });
 
@@ -386,7 +397,7 @@ app.post('/createTournament', cors(), function (req, res) {
     var typ = req.body.typ;
 
 
-    var body = { name: name, datum: datum, typ: typ }
+    var body = { name: name, datum: datum, typ: typ, id: undefined }
 
     var sql = "Insert into wettkampf (name, datum, typ) Values ('"
         + name + "' ,'" + datum + "' ,'" + typ + "' );";
@@ -395,7 +406,7 @@ app.post('/createTournament', cors(), function (req, res) {
         if (!!err) {
             throw err;
         } else {
-            console.log("new wettkampf created");
+            body.id = rows.insertId;
             res.send(body);
         }
     });
@@ -433,6 +444,8 @@ app.post('/editPlayer/:id', cors(), function (req, res) {
 
 
 app.post('/editTeam/:id', cors(), function (req, res) {
+
+
     var id = req.params.id;
     var name = req.body.name;
     var motto = req.body.motto;
@@ -453,111 +466,136 @@ app.post('/editTeam/:id', cors(), function (req, res) {
 
 app.delete('/deleteGameById/:id/', cors(), function (req, res) {
 
+    if (req.get('Authentication') === 'admin') {
 
-    var sqlGetGame = "SELECT * FROM game WHERE id = " + req.params.id;
 
-    connection.query(sqlGetGame, function (error, row, fields) {
-        if (!!error) {
-            console.log("Error in delete game query");
-            throw error;
+        var sqlGetGame = "SELECT * FROM game WHERE id = " + req.params.id;
 
-        } else {
+        connection.query(sqlGetGame, function (error, row, fields) {
+            if (!!error) {
+                console.log("Error in delete game query");
+                throw error;
 
-            var points = row[0].points;
-            var winner = row[0].winnerid;
-            var silver = row[0].silverid;
-            var bronze = row[0].bronzeid;
-            var iron = row[0].ironid;
-            var loser = row[0].loserid;
+            } else {
 
-            console.log(winner, silver, bronze, iron, loser);
+                var points = row[0].points;
+                var winner = row[0].winnerid;
+                var silver = row[0].silverid;
+                var bronze = row[0].bronzeid;
+                var iron = row[0].ironid;
+                var loser = row[0].loserid;
 
-            var winnerpoints = points * 0.45;
-            var silverpoints = points * 0.25;
-            var bronzepoints = points * 0.15;
-            var ironpoints = points * 0.1;
-            var loserpoints = points * 0.05;
+                var winnerpoints = points * 0.45;
+                var silverpoints = points * 0.25;
+                var bronzepoints = points * 0.15;
+                var ironpoints = points * 0.1;
+                var loserpoints = points * 0.05;
 
-            var teamssqls = new Array();
+                var teamssqls = new Array();
 
-            teamssqls = [
-                "UPDATE team SET points = points - " + winnerpoints + " WHERE id =" + winner,
-                "UPDATE team SET points = points - " + silverpoints + " WHERE id =" + silver,
-                "UPDATE team SET points = points - " + bronzepoints + " WHERE id =" + bronze,
-                "UPDATE team SET points = points - " + ironpoints + " WHERE id =" + iron,
-                "UPDATE team SET points = points - " + loserpoints + " WHERE id =" + loser,
-            ]
+                teamssqls = [
+                    "UPDATE team SET points = points - " + winnerpoints + " WHERE id =" + winner,
+                    "UPDATE team SET points = points - " + silverpoints + " WHERE id =" + silver,
+                    "UPDATE team SET points = points - " + bronzepoints + " WHERE id =" + bronze,
+                    "UPDATE team SET points = points - " + ironpoints + " WHERE id =" + iron,
+                    "UPDATE team SET points = points - " + loserpoints + " WHERE id =" + loser,
+                ]
 
-            for (var i = 0; i < teamssqls.length; i++) {
-                console.log(teamssqls[i])
-                connection.query(teamssqls[i], function (error, rows) {
+                for (var i = 0; i < teamssqls.length; i++) {
+
+                    connection.query(teamssqls[i], function (error, rows) {
+                        if (!!error) {
+                            console.log("Error in Subtractquery");
+                            throw error;
+
+                        } else {
+                            console.log("success substracting Points");
+                            this.subtractrows = this.subtractrows + rows;
+                        }
+                    })
+                }
+
+
+                var sql = "DELETE From game WHERE id =" + req.params.id;
+
+
+
+                connection.query(sql, function (error, rows) {
                     if (!!error) {
-                        console.log("Error in Subtractquery");
+                        console.log("Error in delete game query");
                         throw error;
 
                     } else {
-                        console.log("success substracting Points");
-                        this.subtractrows = this.subtractrows + rows;
+                        console.log("success deleting Game");
+                        this.gameRows = rows;
                     }
                 })
+
+                res.end(this.gameRows + this.subtractrows);
+
             }
+        });
+    } else {
+        console.log("this funktion is not allowed for " + req.get('Authentication'));
+        
+        res.status(400).send("this function is not allowed for user: '" +req.get('Authentication')+ "'");
+    }
 
-
-            var sql = "DELETE From game WHERE id =" + req.params.id;
-
-
-
-            connection.query(sql, function (error, rows) {
-                if (!!error) {
-                    console.log("Error in delete game query");
-                    throw error;
-
-                } else {
-                    console.log("success deleting Game");
-                    this.gameRows = rows;
-                }
-            })
-
-
-            res.end(this.gameRows + this.subtractrows);
-
-        }
-    });
 });
 
 
 app.delete('/deleteTeamById/:id', function (req, res) {
 
-    var sql = "DELETE From team WHERE id ='" + req.params.id + "'";
+    if (req.get('Authentication') === 'admin') {
 
-    connection.query(sql, function (error, rows) {
-        if (!!error) {
-            console.log("Error in deletequery");
-            throw error;
+        var sql = "DELETE From team WHERE id ='" + req.params.id + "'";
 
-        } else {
-            console.log("success deleting Team");
-            res.send(rows);
-        }
-    })
+        connection.query(sql, function (error, rows) {
+            if (!!error) {
+                console.log("Error in deletequery");
+                throw error;
+
+            } else {
+                console.log("success deleting Team");
+                var team = { id: req.params.id }
+                res.send(team);
+            }
+        })
+    } else {
+        console.log("this funktion is not allowed for " + req.get('Authentication'));
+      
+        res.status(400).send("this function is not allowed for user: '" +req.get('Authentication')+ "'");
+    }
+
+
+
 
 });
 
 
 app.delete('/deletePlayerById/:id', function (req, res) {
 
-    var sql = "DELETE From player WHERE id ='" + req.params.id + "'";
+    if (req.get('Authentication') === 'admin') {
 
-    connection.query(sql, function (error, rows) {
-        if (!!error) {
-            console.log("Error in delete Player query");
-            throw error;
+        var sql = "DELETE From player WHERE id ='" + req.params.id + "'";
 
-        } else {
-            console.log("success deleting Player");
-            res.send(rows);
-        }
-    })
+        connection.query(sql, function (error, rows) {
+            if (!!error) {
+                console.log("Error in delete Player query");
+                throw error;
+
+            } else {
+                console.log("success deleting Player");
+
+                var player = { id: req.params.id }
+
+                res.send(player);
+            }
+        })
+    } else {
+        console.log("this function is not allowed for " + req.get('Authentication'));
+        res.status(400).send("this function is not allowed for user: '" +req.get('Authentication')+ "'");
+    }
 
 });
 
