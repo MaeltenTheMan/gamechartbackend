@@ -97,24 +97,6 @@ app.get("/getAllTeams/:wettkampfid", cors(), function (req, res) {
 });
 
 
-app.get("/getAllColors", cors(), function (req, res) {
-
-    var sql = "SELECT * FROM color";
-
-    connection.query(sql, function (error, rows, fields) {
-        var response;
-        if (!!error) {
-            console.log("Error in the getColorquery");
-            throw error;
-
-        } else {
-            console.log("success getting all Colors");
-            response = JSON.stringify(rows);
-            res.send(JSON.parse(response));
-        }
-    });
-});
-
 app.get("/getTournaments", cors(), function (req, res) {
 
     var sql = "SELECT * FROM wettkampf";
@@ -259,7 +241,7 @@ app.post("/createTeam/:wettkampfid", cors(), function (req, res) {
     var motto = req.body.motto;
     var wettkampfid = req.params.wettkampfid
 
-    var body = { name: name, motto: motto, wettkampfid: wettkampfid }
+    var body = { name: name, motto: motto, wettkampfid: wettkampfid, id: undefined }
 
     var sql = "Insert into team (name, motto, wettkampfid) Values ('" + name + "' ,'" + motto + "' ,'" + wettkampfid + "' );";
 
@@ -269,7 +251,7 @@ app.post("/createTeam/:wettkampfid", cors(), function (req, res) {
         if (!!err) {
             throw err;
         } else {
-
+            body.id = rows.insertId;
             console.log("new team created");
             res.send(body);
         }
@@ -291,7 +273,7 @@ app.post("/createPlayer", cors(), function (req, res) {
     var sql = "Insert into player (firstname, lastname, description, color, picturesrc, birthday) Values ('"
         + firstname + "' ,'" + lastname + "' ,'" + description + "' ,'" + color + "' ,'" + picturesrc + "' ,'" + birthday + "' );";
 
-    connection.query(sql, function (err, rows, fields) {
+    connection.query(sql, function (err, rows) {
 
 
         if (!!err) {
