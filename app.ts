@@ -268,7 +268,8 @@ app.post("/createPlayer", cors(), function (req, res) {
     var picturesrc = "../assets/Pictures/" + firstname + "-" + lastname + ".jpg"
     var birthday = req.body.birthday;
 
-    var body = { firstname: firstname, lastname: lastname, description: description, color: color, picturesrc: picturesrc, birthday: birthday, id: undefined }
+    var body =
+        { firstname: firstname, lastname: lastname, description: description, color: color, picturesrc: picturesrc, birthday: birthday, id: undefined }
 
     var sql = "Insert into player (firstname, lastname, description, color, picturesrc, birthday) Values ('"
         + firstname + "' ,'" + lastname + "' ,'" + description + "' ,'" + color + "' ,'" + picturesrc + "' ,'" + birthday + "' );";
@@ -361,8 +362,8 @@ app.post('/newGame/:wettkampfid', cors(), function (req, res) {
 
     } else {
         console.log("this funktion is not allowed for " + req.get('Authentication'));
-        
-        res.status(400).send("this function is not allowed for user: '" +req.get('Authentication')+ "'");
+
+        res.status(400).send("this function is not allowed for user: '" + req.get('Authentication') + "'");
     }
 
 
@@ -373,13 +374,13 @@ app.post('/newGame/:wettkampfid', cors(), function (req, res) {
 app.post('/createTournament', cors(), function (req, res) {
 
     var name = req.body.name;
-    var newDatum = new Date();
+    var newDatum = new Date(Date.now()).toLocaleString();
     var datum = newDatum.toString();
 
     var typ = req.body.typ;
 
 
-    var body = { name: name, datum: datum, typ: typ, id: undefined }
+    var body = { name: name, datum: newDatum, typ: typ, id: undefined }
 
     var sql = "Insert into wettkampf (name, datum, typ) Values ('"
         + name + "' ,'" + datum + "' ,'" + typ + "' );";
@@ -519,8 +520,8 @@ app.delete('/deleteGameById/:id/', cors(), function (req, res) {
         });
     } else {
         console.log("this funktion is not allowed for " + req.get('Authentication'));
-        
-        res.status(400).send("this function is not allowed for user: '" +req.get('Authentication')+ "'");
+
+        res.status(400).send("this function is not allowed for user: '" + req.get('Authentication') + "'");
     }
 
 });
@@ -545,8 +546,8 @@ app.delete('/deleteTeamById/:id', function (req, res) {
         })
     } else {
         console.log("this funktion is not allowed for " + req.get('Authentication'));
-      
-        res.status(400).send("this function is not allowed for user: '" +req.get('Authentication')+ "'");
+
+        res.status(400).send("this function is not allowed for user: '" + req.get('Authentication') + "'");
     }
 
 
@@ -576,7 +577,7 @@ app.delete('/deletePlayerById/:id', function (req, res) {
         })
     } else {
         console.log("this function is not allowed for " + req.get('Authentication'));
-        res.status(400).send("this function is not allowed for user: '" +req.get('Authentication')+ "'");
+        res.status(400).send("this function is not allowed for user: '" + req.get('Authentication') + "'");
     }
 
 });
