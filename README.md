@@ -19,7 +19,7 @@ create table player (id int(11) not null auto_increment, firstname varchar(50) n
 , description varchar(50) not null, wins int(11) default 0, picturesrc varchar(50) not null, color int(11) not null , primary key ( id ));
 
 //Teams
-create table player (id int(11) not null auto_increment, name varchar(50) not null, motto varchar(50) not null,  points int(11) not null, wettkampfid int(11) not null, primary
+create table player (id int(11) not null auto_increment, name varchar(50) not null, motto varchar(50) not null,  points int(11) not null, wettkampfid int(11) not null, primary key ( id ));
 
 
 +------------------+
