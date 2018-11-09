@@ -4,15 +4,14 @@ Nodejs api, game chart
 Database:
 
 //Player Team Helper
-create table player_team (player_id int(11) not null, team_id int(11) not null);
+create table player_team (player_id int(11) not null, team_id int(11) not null, wettkampf_id int(11) not null);
 
 //Games
 create table game (id int(11) not null auto_increment, name varchar(50) not null, points int(50) not null , winnerid int(50) not null
 , silverid int(50) not null, bronzeid int(50) not null, ironid int(50) not null, loserid int(50) not null, wettkampfid int(50) not null, primary key ( id ));
 
 //Tourneys
-create table wettkampf (id int(11) not null auto_increment, name varchar(50) not null, datum DATE not null, typ varchar(50) not null, status int(11) default 1
-, password varchar(50) not null, primary key ( id ));
+create table wettkampf (id int(11) not null auto_increment, name varchar(50) not null, datum DATE not null, winnerteamid int(11) null, typ varchar(50) not null, status int(11) default 1, password varchar(50) not null, primary key ( id ));
 
 //Players
 create table player (id int(11) not null auto_increment, firstname varchar(50) not null, lastname varchar(50) not null, birthday DATE not null
