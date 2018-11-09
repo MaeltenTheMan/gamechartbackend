@@ -15,7 +15,7 @@ app.use(function (req, res, next) {
     // Request headers you wish to allow
     /*  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type'); */
 
-    res.setHeader("Access-Control-Allow-Headers", "Authentication, Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+    res.setHeader("Access-Control-Allow-Headers", "Authentication, Status, Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
 
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
@@ -23,7 +23,7 @@ app.use(function (req, res, next) {
 
     // Pass to next layer of middleware
     next();
-})
+});
 
 
 app.use(bodyParser.json());
@@ -97,9 +97,9 @@ app.get("/getAllTeams/:wettkampfid", cors(), function (req, res) {
 });
 
 
-app.get("/getTournaments", cors(), function (req, res) {
+app.get("/getActiveTournaments", cors(), function (req, res) {
 
-    var sql = "SELECT * FROM wettkampf";
+    var sql = "SELECT * FROM wettkampf WHERE status = 1";
 
     connection.query(sql, function (error, rows) {
         var response;
@@ -108,7 +108,26 @@ app.get("/getTournaments", cors(), function (req, res) {
             throw error;
 
         } else {
-            console.log("success getting all Wettkampf");
+            console.log("success getting all active Wettkampf");
+            response = JSON.stringify(rows);
+            res.send(JSON.parse(response));
+        }
+    });
+
+});
+
+app.get("/getFinishedTournaments", cors(), function (req, res) {
+
+    var sql = "SELECT * FROM wettkampf WHERE status= 0";
+
+    connection.query(sql, function (error, rows) {
+        var response;
+        if (!!error) {
+            console.log("Error in the getWettkampfquery");
+            throw error;
+
+        } else {
+            console.log("success getting all finished Wettkampf");
             response = JSON.stringify(rows);
             res.send(JSON.parse(response));
         }
@@ -199,7 +218,7 @@ app.get("/getFirstPlace/:wettkampfid", cors(), function (req, res) {
 
     var wettkampfid = req.params.wettkampfid;
 
-    var sql = "SELECT * FROM team WHERE wettkampfid=" + wettkampfid + " AND points = (SELECT MAX(points)FROM team)";
+    var sql = "SELECT * FROM team WHERE wettkampfid=" + wettkampfid + " AND points = (SELECT MAX(points)FROM team WHERE wettkampfid=" + wettkampfid + ")";
 
     connection.query(sql, function (error, row, ) {
         if (!!error) {
@@ -217,7 +236,7 @@ app.get("/getFirstPlace/:wettkampfid", cors(), function (req, res) {
 app.get("/getPlayerOfTeam/:teamid", cors(), function (req, res) {
     var teamID = req.params.teamid;
 
-    var sql = "SELECT player.firstname, player.lastname From player INNER JOIN player_team ON player.id = player_team.player_id WHERE player_team.team_id =" + teamID;
+    var sql = "SELECT * FROM player INNER JOIN player_team ON player.id = player_team.player_id WHERE player_team.team_id =" + teamID;
 
 
     connection.query(sql, function (error, row, ) {
@@ -234,19 +253,19 @@ app.get("/getPlayerOfTeam/:teamid", cors(), function (req, res) {
 })
 
 
-app.get("/getUsedPlayers/:wettkampfid", cors(), function (req, res){
+app.get("/getUsedPlayers/:wettkampfid", cors(), function (req, res) {
 
     var wettkampfID = req.params.wettkampfid;
 
     var sql = "SELECT * FROM player INNER JOIN player_team ON player.id = player_team.player_id WHERE player_team.wettkampf_id=" + wettkampfID;
-    
+
 
     connection.query(sql, function (error, row, ) {
         if (!!error) {
             console.log("error getting not used Players");
         }
         else {
-            
+
             console.log("success getting not used Players");
             var response = JSON.stringify(row);
             res.send(JSON.parse(response));
@@ -311,12 +330,13 @@ app.post("/createPlayer", cors(), function (req, res) {
 
 app.post('/addPlayerToTeam/:teamID/:playerID/:wettkampfID', cors(), function (req, res) {
 
+    if (req.get('Status') === '1'){
     var playerID = req.params.playerID;
     var teamID = req.params.teamID;
     var wettkampfID = req.params.wettkampfID;
 
 
-    var sql = "Insert into player_team (player_id, team_id, wettkampf_id) Values ('" + playerID + "','" + teamID +  "','" + wettkampfID + "');";
+    var sql = "Insert into player_team (player_id, team_id, wettkampf_id) Values ('" + playerID + "','" + teamID + "','" + wettkampfID + "');";
 
     connection.query(sql, function (error, rows) {
         if (!!error) {
@@ -327,6 +347,11 @@ app.post('/addPlayerToTeam/:teamID/:playerID/:wettkampfID', cors(), function (re
             res.send(rows);
         }
     });
+    }
+
+    else{
+        res.status(400).send("this function is not allowed");
+    }
 
 });
 
@@ -404,7 +429,7 @@ app.post('/createTournament', cors(), function (req, res) {
     var typ = req.body.typ;
 
 
-    var body = { name: name, datum: newDatum, typ: typ, id: undefined }
+    var body = { name: name, datum: newDatum, typ: typ, id: undefined, status : "1" }
 
     var sql = "Insert into wettkampf (name, datum, typ) Values ('"
         + name + "' ,'" + datum + "' ,'" + typ + "' );";
@@ -447,33 +472,85 @@ app.post('/editPlayer/:id', cors(), function (req, res) {
 
 });
 
+app.post('/setTourneyStatus/:wettkampfID/:teamID', cors(), function (req, res) {
+
+    if (req.get('Status') === '1'){
+
+    var teamID = req.params.teamID;
+    var wettkampfID = req.params.wettkampfID;
+
+    var sql = "UPDATE wettkampf SET status = 0 , winnerteamid =" + teamID + " WHERE id=" + wettkampfID;
+
+    connection.query(sql, function (error, row) {
+        if (!!error) {
+
+            console.log("Error in setting Tourneystatus query");
+            throw error;
+        } else {
+            console.log("success setting Tourneystatus");
+            res.send(row);
+        }
+    });
+    }
+    else {
+        res.status(400).send("this function is not allowed");
+    }
+});
+
+
+app.post('/addWinsToPlayers', cors(), function (req, res) {
+    if(req.get('Status') === '1'){
+    var winnerPlayer = req.body;
+
+    console.log(winnerPlayer)
+
+    var sql = "UPDATE player SET wins = wins +1 WHERE id=";
+
+    for (var i = 0; i < winnerPlayer.length; i++) {
+        connection.query(sql + winnerPlayer[i].id, function (error, rows) {
+            if (!!error) {
+                console.log("error in adding wins");
+                throw error;
+            } else {
+                console.log("addet wins");
+
+            }
+        });
+    }
+    }
+
+    res.end();
+});
 
 
 
 app.post('/editTeam/:id', cors(), function (req, res) {
 
+    if (req.get('Status') === '1') {
 
-    var id = req.params.id;
-    var name = req.body.name;
-    var motto = req.body.motto;
+        var id = req.params.id;
+        var name = req.body.name;
+        var motto = req.body.motto;
 
-    var sql = "UPDATE team SET name = '" + name + "', motto = '" + motto + "' WHERE id =" + id;
+        var sql = "UPDATE team SET name = '" + name + "', motto = '" + motto + "' WHERE id =" + id;
 
-    connection.query(sql, function (error, row) {
-        if (!!error) {
-            console.log("Error in editing Team query");
-        } else {
-            console.log("success editing Team");
-            res.send(row);
-        }
-    })
-
-
+        connection.query(sql, function (error, row) {
+            if (!!error) {
+                console.log("Error in editing Team query");
+            } else {
+                console.log("success editing Team");
+                res.send(row);
+            }
+        })
+    }
+    else {
+        res.status(400).send("this function is not allowed");
+    }
 });
 
 app.delete('/deleteGameById/:id/', cors(), function (req, res) {
 
-    if (req.get('Authentication') === 'admin') {
+    if (req.get('Authentication') === 'admin' && req.get('Status') === '1') {
 
 
         var sqlGetGame = "SELECT * FROM game WHERE id = " + req.params.id;
@@ -545,7 +622,7 @@ app.delete('/deleteGameById/:id/', cors(), function (req, res) {
     } else {
         console.log("this funktion is not allowed for " + req.get('Authentication'));
 
-        res.status(400).send("this function is not allowed for user: '" + req.get('Authentication') + "'");
+        res.status(400).send("this function is not allowed");
     }
 
 });
@@ -553,7 +630,7 @@ app.delete('/deleteGameById/:id/', cors(), function (req, res) {
 
 app.delete('/deleteTeamById/:id', function (req, res) {
 
-    if (req.get('Authentication') === 'admin') {
+    if (req.get('Authentication') === 'admin' && req.get('Status') === '1') {
 
         var sql = "DELETE From team WHERE id ='" + req.params.id + "'";
 
@@ -571,18 +648,15 @@ app.delete('/deleteTeamById/:id', function (req, res) {
     } else {
         console.log("this funktion is not allowed for " + req.get('Authentication'));
 
-        res.status(400).send("this function is not allowed for user: '" + req.get('Authentication') + "'");
+        res.status(400).send("this function is not allowed");
     }
-
-
-
 
 });
 
 
 app.delete('/deletePlayerById/:id', function (req, res) {
 
-    if (req.get('Authentication') === 'admin') {
+    if (req.get('Authentication') === 'admin' && req.get('Status') === '1') {
 
         var sql = "DELETE From player WHERE id ='" + req.params.id + "'";
 
@@ -593,15 +667,15 @@ app.delete('/deletePlayerById/:id', function (req, res) {
 
             } else {
                 console.log("success deleting Player");
-                               
+
                 var player = { id: req.params.id }
-                
+
                 res.send(player);
             }
         })
     } else {
         console.log("this function is not allowed for " + req.get('Authentication'));
-        res.status(400).send("this function is not allowed for user: '" + req.get('Authentication') + "'");
+        res.status(400).send("this function is not allowed");
     }
 
 });
