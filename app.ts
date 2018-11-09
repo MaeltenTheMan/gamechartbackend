@@ -222,10 +222,32 @@ app.get("/getPlayerOfTeam/:teamid", cors(), function (req, res) {
 
     connection.query(sql, function (error, row, ) {
         if (!!error) {
-            console.log("error getting biggest");
+            console.log("error getting Player of specific Team");
         }
         else {
             console.log("success getting Player of specific Team");
+            var response = JSON.stringify(row);
+            res.send(JSON.parse(response));
+        }
+    });
+
+})
+
+
+app.get("/getUsedPlayers/:wettkampfid", cors(), function (req, res){
+
+    var wettkampfID = req.params.wettkampfid;
+
+    var sql = "SELECT * FROM player INNER JOIN player_team ON player.id = player_team.player_id WHERE player_team.wettkampf_id=" + wettkampfID;
+    
+
+    connection.query(sql, function (error, row, ) {
+        if (!!error) {
+            console.log("error getting not used Players");
+        }
+        else {
+            
+            console.log("success getting not used Players");
             var response = JSON.stringify(row);
             res.send(JSON.parse(response));
         }
@@ -287,12 +309,14 @@ app.post("/createPlayer", cors(), function (req, res) {
 });
 
 
-app.post('/addPlayerToTeam/:teamID/:playerID', cors(), function (req, res) {
+app.post('/addPlayerToTeam/:teamID/:playerID/:wettkampfID', cors(), function (req, res) {
 
     var playerID = req.params.playerID;
     var teamID = req.params.teamID;
+    var wettkampfID = req.params.wettkampfID;
 
-    var sql = "Insert into player_team (player_id, team_id) Values ('" + playerID + "','" + teamID + "');";
+
+    var sql = "Insert into player_team (player_id, team_id, wettkampf_id) Values ('" + playerID + "','" + teamID +  "','" + wettkampfID + "');";
 
     connection.query(sql, function (error, rows) {
         if (!!error) {
@@ -569,9 +593,9 @@ app.delete('/deletePlayerById/:id', function (req, res) {
 
             } else {
                 console.log("success deleting Player");
-
+                               
                 var player = { id: req.params.id }
-
+                
                 res.send(player);
             }
         })
