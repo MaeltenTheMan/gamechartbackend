@@ -67,7 +67,7 @@ Field       | Type         | Null | Key | Default | Extra
  lastname    | varchar(50)  | NO   |     | NULL    |                
  wins        | int(11)      | NO   |     | NULL    |                
  description | varchar(100) | YES  |     | NULL    |                
- birthday    | date         | YES  |     | NULL    |                
+ birthday    | varchar(50)  | YES  |     | NULL    |                
  picturesrc  | varchar(50)  | NO   |     | NULL    |                
  color       | int(11)      | NO   |     | NULL    |                
 
