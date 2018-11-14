@@ -22,13 +22,13 @@ create table team (id int(11) not null auto_increment, name varchar(50) not null
 
 
 
- Tables_in_testdb 
+ Tables_in_testdb         
  color            
  game             
-player           
+ player           
  player_team      
-team             
-wettkampf        
+ team             
+ wettkampf        
 
 
 //game
@@ -48,15 +48,15 @@ status | int(11) | YES  | | 1 |
 
 
 //wettkampf
-+----------+-------------+------+-----+---------+----------------+
-| Field    | Type        | Null | Key | Default | Extra          |
-+----------+-------------+------+-----+---------+----------------+
-| id       | int(11)     | NO   | PRI | NULL    | auto_increment |
-| name     | varchar(50) | NO   |     | NULL    |                |
-| typ      | varchar(50) | NO   |     | NULL    |                |
-| datum    | varchar(50) | NO   |     | NULL    |                |
-| status   | int(11)     | NO   |     | NULL    |                |
-+----------+-------------+------+-----+---------+----------------+
+
+ Field    | Type        | Null | Key | Default | Extra          
+
+ id       | int(11)     | NO   | PRI | NULL    | auto_increment 
+ name     | varchar(50) | NO   |     | NULL    |                
+ typ      | varchar(50) | NO   |     | NULL    |               
+ datum    | varchar(50) | NO   |     | NULL    |                
+ status   | int(11)     | NO   |     | NULL    |                
+
 
 //player
 +-------------+--------------+------+-----+---------+----------------+
