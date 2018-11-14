@@ -66,7 +66,7 @@ Field       | Type         | Null | Key | Default | Extra
  firstname   | varchar(50)  | NO   |     | NULL    |                
  lastname    | varchar(50)  | NO   |     | NULL    |                
  wins        | int(11)      | NO   |     | NULL    |                
- description | varchar(100) | YES  |     | NULL    |                
+ description | varchar(50) | YES  |     | NULL    |                
  birthday    | varchar(50)  | YES  |     | NULL    |                
  picturesrc  | varchar(50)  | NO   |     | NULL    |                
  color       | int(11)      | NO   |     | NULL    |                
@@ -80,5 +80,15 @@ Field       | Type        | Null | Key | Default | Extra
  name        | varchar(50) | NO   |     | NULL    |                
  motto       | varchar(50) | NO   |     | NULL    |                
  points      | int(11)     | NO   |     | 0       |                
- wettkampfid | int(11)     | NO   |     | NULL    |                
+ wettkampfid | int(11)     | NO   |     | NULL    |             
+ 
+ 
+ //player_team
+ 
+ Field       | Type        | Null | Key | Default | Extra          
+--- | --- | --- | --- | --- | ---
+ 
+ player_id    | int(11) | NO   |     | NULL    |       
+ team_id      | int(11) | NO   |     | NULL    |       
+ wettkampf_id | int(11) | NO   |     | NULL    |       
 
