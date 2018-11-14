@@ -32,6 +32,7 @@ create table team (id int(11) not null auto_increment, name varchar(50) not null
 
 
 //game
+
  Field | Type | Null | Key | Default | Extra          
 --- | --- | --- | --- | --- | ---
 id | int(11) | NO | PRI | NULL | auto_increment 
@@ -47,7 +48,8 @@ status | int(11) | YES  | | 1 |
 
 
 //wettkampf
- Field    | Type        | Null | Key | Default | Extra          
+
+Field    | Type        | Null | Key | Default | Extra          
 --- | --- | --- | --- | --- | ---
  id       | int(11)     | NO   | PRI | NULL    | auto_increment 
  name     | varchar(50) | NO   |     | NULL    |                
@@ -57,7 +59,8 @@ status | int(11) | YES  | | 1 |
 
 
 //player
- Field       | Type         | Null | Key | Default | Extra          
+
+Field       | Type         | Null | Key | Default | Extra          
 --- | --- | --- | --- | --- | ---
  id          | int(11)      | NO   | PRI | NULL    | auto_increment 
  firstname   | varchar(50)  | NO   |     | NULL    |                
@@ -70,7 +73,8 @@ status | int(11) | YES  | | 1 |
 
 
 //team
- Field       | Type        | Null | Key | Default | Extra          
+
+Field       | Type        | Null | Key | Default | Extra          
 --- | --- | --- | --- | --- | ---
  id          | int(11)     | NO   | PRI | NULL    | auto_increment 
  name        | varchar(50) | NO   |     | NULL    |                
