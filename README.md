@@ -21,32 +21,31 @@ create table player (id int(11) not null auto_increment, firstname varchar(50) n
 create table team (id int(11) not null auto_increment, name varchar(50) not null, motto varchar(50) not null,  points int(11) not null, wettkampfid int(11) not null, primary key ( id ));
 
 
-##+------------------+
-##| Tables_in_testdb |
-##+------------------+
-##| color            |
-##| game             |
-##| player           |
-##| player_team      |
-##| team             |
-##| wettkampf        |
-##+------------------+
+
+ Tables_in_testdb 
+ color            
+ game             
+player           
+ player_team      
+team             
+wettkampf        
+
 
 //game
-+-------------+-------------+------+-----+---------+----------------+
-| Field       | Type        | Null | Key | Default | Extra          |
-+-------------+-------------+------+-----+---------+----------------+
-| id          | int(11)     | NO   | PRI | NULL    | auto_increment |
-| name        | varchar(50) | NO   |     | NULL    |                |
-| points      | int(11)     | NO   |     | NULL    |                |
-| winnerid    | int(11)     | NO   |     | NULL    |                |
-| silverid    | int(11)     | NO   |     | NULL    |                |
-| bronzeid    | int(11)     | YES  |     | NULL    |                |
-| ironid      | int(11)     | YES  |     | NULL    |                |
-| loserid     | int(11)     | YES  |     | NULL    |                |
-| wettkampfid | int(11)     | NO   |     | NULL    |                |
-| status      | int(11)     | YES  |     | 1       |                |
-+-------------+-------------+------+-----+---------+----------------+
+
+ Field | Type | Null | Key | Default | Extra          
+--- | --- | --- | --- | --- | ---
+id | int(11) | NO | PRI | NULL | auto_increment 
+name | varchar(50) | NO | | NULL |                
+points | int(11) | NO | | NULL |               
+winnerid | int(11) | NO | | NULL |              
+silverid | int(11) | NO | | NULL |             
+bronzeid | int(11) | YES | | NULL |            
+ironid | int(11) | YES | | NULL|              
+loserid | int(11) | YES  | | NULL |             
+wettkampfid | int(11) | NO | | NULL |           
+status | int(11) | YES  | | 1 |         
+
 
 //wettkampf
 +----------+-------------+------+-----+---------+----------------+
