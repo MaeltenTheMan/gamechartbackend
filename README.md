@@ -50,7 +50,7 @@ status | int(11) | YES  | | 1 |
 //wettkampf
 
  Field    | Type        | Null | Key | Default | Extra          
-
+--- | --- | --- | --- | --- | ---
  id       | int(11)     | NO   | PRI | NULL    | auto_increment 
  name     | varchar(50) | NO   |     | NULL    |                
  typ      | varchar(50) | NO   |     | NULL    |               
