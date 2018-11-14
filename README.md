@@ -32,7 +32,6 @@ create table team (id int(11) not null auto_increment, name varchar(50) not null
 
 
 //game
-
  Field | Type | Null | Key | Default | Extra          
 --- | --- | --- | --- | --- | ---
 id | int(11) | NO | PRI | NULL | auto_increment 
@@ -48,7 +47,6 @@ status | int(11) | YES  | | 1 |
 
 
 //wettkampf
-
  Field    | Type        | Null | Key | Default | Extra          
 --- | --- | --- | --- | --- | ---
  id       | int(11)     | NO   | PRI | NULL    | auto_increment 
@@ -59,26 +57,24 @@ status | int(11) | YES  | | 1 |
 
 
 //player
-+-------------+--------------+------+-----+---------+----------------+
-| Field       | Type         | Null | Key | Default | Extra          |
-+-------------+--------------+------+-----+---------+----------------+
-| id          | int(11)      | NO   | PRI | NULL    | auto_increment |
-| firstname   | varchar(50)  | NO   |     | NULL    |                |
-| lastname    | varchar(50)  | NO   |     | NULL    |                |
-| wins        | int(11)      | NO   |     | NULL    |                |
-| description | varchar(100) | YES  |     | NULL    |                |
-| birthday    | date         | YES  |     | NULL    |                |
-| picturesrc  | varchar(50)  | NO   |     | NULL    |                |
-| color       | int(11)      | NO   |     | NULL    |                |
-+-------------+--------------+------+-----+---------+----------------+
+ Field       | Type         | Null | Key | Default | Extra          
+--- | --- | --- | --- | --- | ---
+ id          | int(11)      | NO   | PRI | NULL    | auto_increment 
+ firstname   | varchar(50)  | NO   |     | NULL    |                
+ lastname    | varchar(50)  | NO   |     | NULL    |                
+ wins        | int(11)      | NO   |     | NULL    |                
+ description | varchar(100) | YES  |     | NULL    |                
+ birthday    | date         | YES  |     | NULL    |                
+ picturesrc  | varchar(50)  | NO   |     | NULL    |                
+ color       | int(11)      | NO   |     | NULL    |                
+
 
 //team
-+-------------+-------------+------+-----+---------+----------------+
-| Field       | Type        | Null | Key | Default | Extra          |
-+-------------+-------------+------+-----+---------+----------------+
-| id          | int(11)     | NO   | PRI | NULL    | auto_increment |
-| name        | varchar(50) | NO   |     | NULL    |                |
-| motto       | varchar(50) | NO   |     | NULL    |                |
-| points      | int(11)     | NO   |     | 0       |                |
-| wettkampfid | int(11)     | NO   |     | NULL    |                |
-+-------------+-------------+------+-----+---------+----------------+
+ Field       | Type        | Null | Key | Default | Extra          
+--- | --- | --- | --- | --- | ---
+ id          | int(11)     | NO   | PRI | NULL    | auto_increment 
+ name        | varchar(50) | NO   |     | NULL    |                
+ motto       | varchar(50) | NO   |     | NULL    |                
+ points      | int(11)     | NO   |     | 0       |                
+ wettkampfid | int(11)     | NO   |     | NULL    |                
+
